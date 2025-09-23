@@ -25,6 +25,7 @@ jobs:
 
       - name: Install deps (app + dev)
         run: poetry install --no-interaction --no-ansi
+        
 
       - name: Lint (Ruff)
         run: poetry run ruff check .
