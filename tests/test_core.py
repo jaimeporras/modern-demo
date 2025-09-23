@@ -1,4 +1,5 @@
 import pytest
+
 from modern_demo.core import process_numbers
 
 
