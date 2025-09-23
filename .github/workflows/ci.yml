@@ -22,7 +22,7 @@ jobs:
         run: pip install poetry
 
       - name: Install dependencies
-        run: poetry install --no-dev
+        run: poetry install
 
       - name: Run linters
         run: |
