@@ -18,14 +18,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "poetry"   # speeds up installs using Poetry's cache
+          cache: "poetry"
 
       - name: Install Poetry
         run: pipx install poetry
 
-      - name: Install deps (app + dev)
+      - name: Install dependencies
         run: poetry install --no-interaction --no-ansi
-        
 
       - name: Lint (Ruff)
         run: poetry run ruff check .
