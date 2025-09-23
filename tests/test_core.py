@@ -12,10 +12,10 @@ def test_process_numbers():
 @pytest.mark.parametrize(
     "input_data,expected",
     [
-        ([1, 2, -1], [2, 4]),   # doubles positives, ignores negative
-        ([0, -5, 7], [14]),     # ignores zero and negatives
-        ([], []),               # empty input stays empty
-    ]
+        ([1, 2, -1], [2, 4]),  # doubles positives, ignores negative
+        ([0, -5, 7], [14]),  # ignores zero and negatives
+        ([], []),  # empty input stays empty
+    ],
 )
 def test_process_numbers_param(input_data, expected):
     assert process_numbers(input_data) == expected
