@@ -1,1 +1,1 @@
-# Modern Demo Project with another change to fix poetry
+# Modern Demo Project
