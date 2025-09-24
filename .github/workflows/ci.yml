@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  # optional: gives you a "Run workflow" button in Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,32 +26,40 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Run linters
-        run: |
-          poetry run black --check .
-          poetry run isort --check-only .
-          poetry run ruff check .
+      - name: Lint (Ruff)
+        run: poetry run ruff check .
 
-      - name: Run tests
+      - name: Format check (Black)
+        run: poetry run black --check .
+
+      - name: Import order check (isort)
+        run: poetry run isort --check-only .
+
+      - name: Run tests (pytest)
         run: poetry run pytest -q
-release:
-  needs: build
-  runs-on: ubuntu-latest
-  if: startsWith(github.ref, 'refs/tags/')
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-    - name: Install Poetry
-      run: pip install poetry
-    - name: Install dependencies
-      run: poetry install
-    - name: Build package
-      run: poetry build
-    - name: Publish to TestPyPI
-      env:
-        POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      run: |
-        poetry config repositories.testpypi https://test.pypi.org/legacy/
-        poetry publish -r testpypi --username __token__ --password $POETRY_PYPI_TOKEN_TESTPYPI
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish to PyPI
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        run: poetry publish --username __token__ --password "$POETRY_PYPI_TOKEN_PYPI"
