@@ -3,15 +3,11 @@ name: CI
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  # optional: gives you a "Run workflow" button in Actions tab
-  workflow_dispatch:
+    tags: ["v*"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -26,16 +22,13 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Lint (Ruff)
-        run: poetry run ruff check .
+      - name: Run linters
+        run: |
+          poetry run black --check .
+          poetry run isort --check-only .
+          poetry run ruff check .
 
-      - name: Format check (Black)
-        run: poetry run black --check .
-
-      - name: Import order check (isort)
-        run: poetry run isort --check-only .
-
-      - name: Run tests (pytest)
+      - name: Run tests
         run: poetry run pytest -q
 
   release:
@@ -53,13 +46,10 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
-      - name: Install dependencies
-        run: poetry install
-
-      - name: Build package
-        run: poetry build
-
-      - name: Publish to PyPI
+      - name: Build and publish to TestPyPI
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
-        run: poetry publish --username __token__ --password "$POETRY_PYPI_TOKEN_PYPI"
+          POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry build
+          poetry publish -r testpypi --username __token__ --password $POETRY_PYPI_TOKEN_TESTPYPI
